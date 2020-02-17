@@ -57,7 +57,7 @@ for weight in model.trainable_weights:
 optimizer = SGD(lr=LEARNING_RATE, decay=LR_DECAY, momentum=0.9, nesterov=False)
 model.compile(loss=loss_functions.detection_loss(), optimizer=optimizer, metrics=[])
 
-train_datagen = data_generator.DataGenerator(rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
+train_datagen = data_generator.DataGenerator(rnd_color=True, rnd_crop=True, rnd_flip=True, rnd_multiply=True, rnd_rescale=True)
 
 #model.load_weights(CHECKPOINT_PATH)
 

@@ -308,4 +308,4 @@ def display_batch(index=0, batch_size=32):
         img = img.resize((1000, 1000))
         img.show()
 
-display_batch(batch_size=32)
+#display_batch(batch_size=32)

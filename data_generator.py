@@ -223,11 +223,11 @@ class DataGenerator(tf.keras.utils.Sequence):
                     x[3] = y1
 
                 if(self.rnd_color):
-                    enchancer = PIL.ImageEnhance.Color(img)
-                    img = enchancer.enhance(np.random.uniform(low=0.5, high=1.5))
+                    enhancer = PIL.ImageEnhance.Color(img)
+                    img = enhancer.enhance(np.random.uniform(low=0.5, high=1.5))
 
-                    enhancer2 = ImageEnhance.Brightness(img)
-                    img = enhancer.enhance(np.random.uniform(low=0.7, high=1.3))
+                    enhancer2 = PIL.ImageEnhance.Brightness(img)
+                    img = enhancer2.enhance(np.random.uniform(low=0.7, high=1.3))
 
                 img = img.resize((self.dim[0], self.dim[1]))
                 img = img.convert('RGB')
@@ -264,7 +264,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 
 def display_batch(index=0, batch_size=32):
-    d = DataGenerator(batch_size=batch_size, rnd_color=False, rnd_crop=True, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
+    d = DataGenerator(batch_size=batch_size, rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=True, rnd_rescale=False)
     a = d.__getitem__(index)
     for i in range(batch_size):
         im = a[0][i]

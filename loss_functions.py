@@ -1,8 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.losses import binary_crossentropy
 import numpy as np
+import yolo_params
 
-GRID_SIZE = 7
+GRID_SIZE = yolo_params.grid_size()
 
 def get_box_highest_percentage(arr):
         shape = tf.shape(arr)

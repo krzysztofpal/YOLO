@@ -6,14 +6,16 @@ from tensorflow.keras.regularizers import l2
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 from tensorflow.keras.optimizers import SGD
 import validation_callback
+import yolo_params
+import yolo_models
 
 
-CHECKPOINT_PATH = 'C:\\Users\\Admin\\Desktop\\face-recognition\\exported-networks\\localization_network_checkpoint_ni_data_augemented.cktp'
+CHECKPOINT_PATH = 'C:\\Users\\Admin\\Desktop\\face-recognition\\exported-networks\\yolo_from_scratch.cktp'
 
 LPHA = 0.35
 
-GRID_SIZE = 7
-IMAGE_SIZE = 224
+GRID_SIZE = yolo_params.grid_size()
+IMAGE_SIZE = yolo_params.image_size()
 
 # first train with frozen weights, then fine tune
 TRAINABLE = False
@@ -32,39 +34,19 @@ THREADS = 1
 
 
 
-model = MobileNetV2(input_shape=(224, 224, 3), include_top=False, alpha=0.35, weights="imagenet")
-for layer in model.layers:
-    layer.trainable = False
-
-block = model.get_layer("block_16_project_BN").output
-
-x = tf.keras.layers.Conv2D(112, padding="same", kernel_size=3, strides=1, activation="relu")(block)
-x = tf.keras.layers.Conv2D(112, padding="same", kernel_size=3, strides=1, use_bias=False)(x)
-x = tf.keras.layers.BatchNormalization()(x)
-x = tf.keras.layers.Activation("relu")(x)
-
-x = tf.keras.layers.Conv2D(5, padding="same", kernel_size=1, activation="sigmoid")(x)
-
-model = tf.keras.Model(inputs=model.input, outputs=x)
-
-# divide by 2 since d/dweight learning_rate * weight^2 = 2 * learning_rate * weight
-# see https://arxiv.org/pdf/1711.05101.pdf
-regularizer = l2(0.0005 / 2)
-for weight in model.trainable_weights:
-    with tf.keras.backend.name_scope("weight_regularizer"):
-        model.add_loss(lambda: regularizer(weight)) # in tf2.0: lambda: regularizer(weight)
+model = yolo_models.model_from_scratch()
 
 
 optimizer = SGD(lr=LEARNING_RATE, decay=LR_DECAY, momentum=0.9, nesterov=False)
 model.compile(loss=loss_functions.detection_loss(), optimizer=optimizer, metrics=[])
 
-#train_datagen = data_generator.DataGenerator(rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
-train_datagen = data_generator.DataGenerator(rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
+train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
+#train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
 
 
 #model.load_weights(CHECKPOINT_PATH)
 
-val_generator = data_generator.DataGenerator(rnd_rescale=False, rnd_multiply=False, rnd_crop=False, rnd_flip=False, debug=False, is_validation=True)
+val_generator = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_rescale=False, rnd_multiply=False, rnd_crop=False, rnd_flip=False, debug=False, is_validation=True)
 validation_callback = validation_callback.Validation(generator=val_generator)
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH, save_weights_only=True, verbose=1)

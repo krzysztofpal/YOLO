@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
+import yolo_params
 
-GRID_SIZE = 7
+GRID_SIZE = yolo_params.grid_size()
 
 class Validation(tf.keras.callbacks.Callback):
     def get_box_highest_percentage(self, mask):

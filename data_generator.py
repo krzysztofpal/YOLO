@@ -3,6 +3,7 @@ import numpy as np
 import PIL
 import image_helper
 import loss_functions
+import yolo_params
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 
 TRAIN_FOLDER = 'C:\\Users\\Admin\\Desktop\\face-recognition\\datasets\\dataset-3\\WIDER_train\\images\\'
@@ -10,7 +11,8 @@ TRAIN_METADATA_PATH = 'C:\\Users\\Admin\\Desktop\\face-recognition\\datasets\\da
 VALIDATION_FOLDER = 'C:\\Users\\Admin\\Desktop\\face-recognition\\datasets\\dataset-3\\WIDER_val\\WIDER_val\\images\\'
 VALIDATION_METADATA_PATH = 'C:\\Users\\Admin\\Desktop\\face-recognition\\datasets\\dataset-3\\wider_face_split\\wider_face_split\\wider_face_val_bbx_gt.txt'
 
-GRIDS = 7
+GRIDS = yolo_params.grid_size()
+IMAGE_SIZE = yolo_params.image_size()
 
 class box():
     x1 = 0
@@ -86,7 +88,7 @@ class image():
 
 
 class DataGenerator(tf.keras.utils.Sequence):
-    def __init__(self, batch_size=32, dim=(224,224,3), shuffle=True, rnd_rescale=True, rnd_multiply=True, rnd_color=True, rnd_crop=True, rnd_flip=True, debug=False, is_validation=False):
+    def __init__(self, batch_size=32, dim=(IMAGE_SIZE,IMAGE_SIZE,3), shuffle=True, rnd_rescale=True, rnd_multiply=True, rnd_color=True, rnd_crop=True, rnd_flip=True, debug=False, is_validation=False):
         self.dim = dim
         self.batch_size = batch_size
         self.shuffle = shuffle

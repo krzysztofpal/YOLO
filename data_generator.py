@@ -158,10 +158,10 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 if(self.rnd_crop):
 
-                    start_x = np.random.randint(0, high=np.floor(0.15 * img.width))
-                    stop_x = img.width - np.random.randint(0, high=np.floor(0.15 * img.width))
-                    start_y = np.random.randint(0, high=np.floor(0.15 * img.height))
-                    stop_y = img.height - np.random.randint(0, high=np.floor(0.15 * img.height))
+                    start_x = np.random.randint(0, high=np.floor(0.2 * img.width))
+                    stop_x = img.width - np.random.randint(0, high=np.floor(0.2 * img.width))
+                    start_y = np.random.randint(0, high=np.floor(0.2 * img.height))
+                    stop_y = img.height - np.random.randint(0, high=np.floor(0.2 * img.height))
 
                     img = img.crop((start_x, start_y, stop_x, stop_y))
 
@@ -173,14 +173,15 @@ class DataGenerator(tf.keras.utils.Sequence):
                     
 
                 if(self.rnd_flip):
-                    elem = np.random.choice([90])
-                    
-                    _x = x[0]- img.width / 2
-                    _y = x[1]- img.height / 2
-                    __x =x[2] - img.width / 2
-                    __y =x[3] - img.height / 2
+                    elem = np.random.choice([0, 90, 180, 270])
 
                     for x in boxes:
+
+                        _x = x[0]- img.width / 2
+                        _y = x[1]- img.height / 2
+                        __x =x[2] - img.width / 2
+                        __y =x[3] - img.height / 2
+
                         x[0] = img.width / 2 + _x * np.cos(np.deg2rad(elem)) - _y * np.sin(np.deg2rad(elem))
                         x[1] = img.height / 2 + _x * np.sin(np.deg2rad(elem)) + _y * np.cos(np.deg2rad(elem))
                         x[2] = img.width / 2 + __x * np.cos(np.deg2rad(elem)) - __y * np.sin(np.deg2rad(elem))
@@ -188,14 +189,38 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                     img = img.rotate(-elem)
 
-                #for x in boxes:
-                #    x[0] = x[0] / img.width
-                #    x[1] = x[1] / img.height
-                #    x[2] = x[2] / img.width
-                #    x[3] = x[3] / img.height
-                    
                 _wimg = img.width
                 _himg = img.height
+
+                # FRESHLY ADDED
+                for x in boxes:
+                    
+                    x0 = x[0]
+                    y0 = x[1]
+                    x1 = x[2]
+                    y1 = x[3]
+
+                    tmp = x0
+                    x0 = min(x0, x1)
+                    x1 = max(tmp, x1)
+
+                    tmp = y0
+                    y0 = min(y0, y1)
+                    y1 = max(tmp, y1)
+
+                    x0 = max(x0, 0)
+                    y0 = max(y0, 0)
+
+                    y0 = min(y0, _himg)
+                    x0 = min(x0, _wimg)
+                    y1 = min(y1, _himg)
+                    x1 = min(x1, _wimg)
+
+
+                    x[0] = x0
+                    x[1] = y0
+                    x[2] = x1
+                    x[3] = y1
 
                 img = img.resize((self.dim[0], self.dim[1]))
                 img = img.convert('RGB')
@@ -232,7 +257,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 
 def display_batch(index=0, batch_size=32):
-    d = DataGenerator(batch_size=batch_size, rnd_color=False, rnd_crop=False, rnd_flip=True, rnd_multiply=False, rnd_rescale=False)
+    d = DataGenerator(batch_size=batch_size, rnd_color=False, rnd_crop=True, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
     a = d.__getitem__(index)
     for i in range(batch_size):
         im = a[0][i]

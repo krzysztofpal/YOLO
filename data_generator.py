@@ -231,7 +231,12 @@ class DataGenerator(tf.keras.utils.Sequence):
 
                 img = img.resize((self.dim[0], self.dim[1]))
                 img = img.convert('RGB')
-                img = np.array(img)             
+                img = np.array(img, dtype=np.float32)
+
+                if(self.rnd_multiply):
+                    img[...,0] = np.floor(np.clip(img[...,0] * np.random.uniform(low=0.8, high=1.2), 0.0, 255.0))
+                    img[...,1] = np.floor(np.clip(img[...,1] * np.random.uniform(low=0.8, high=1.2), 0.0, 255.0))
+                    img[...,2] = np.floor(np.clip(img[...,2] * np.random.uniform(low=0.8, high=1.2), 0.0, 255.0))           
 
                 X[entry] = preprocess_input(img.copy())
                 
@@ -264,7 +269,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 
 def display_batch(index=0, batch_size=32):
-    d = DataGenerator(batch_size=batch_size, rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=True, rnd_rescale=False)
+    d = DataGenerator(batch_size=batch_size, rnd_color=True, rnd_crop=True, rnd_flip=True, rnd_multiply=True, rnd_rescale=True)
     a = d.__getitem__(index)
     for i in range(batch_size):
         im = a[0][i]
@@ -303,4 +308,4 @@ def display_batch(index=0, batch_size=32):
         img = img.resize((1000, 1000))
         img.show()
 
-display_batch(batch_size=6)
+display_batch(batch_size=32)

@@ -222,6 +222,13 @@ class DataGenerator(tf.keras.utils.Sequence):
                     x[2] = x1
                     x[3] = y1
 
+                if(self.rnd_color):
+                    enchancer = PIL.ImageEnhance.Color(img)
+                    img = enchancer.enhance(np.random.uniform(low=0.5, high=1.5))
+
+                    enhancer2 = ImageEnhance.Brightness(img)
+                    img = enhancer.enhance(np.random.uniform(low=0.7, high=1.3))
+
                 img = img.resize((self.dim[0], self.dim[1]))
                 img = img.convert('RGB')
                 img = np.array(img)             

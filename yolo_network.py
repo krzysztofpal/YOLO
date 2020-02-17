@@ -5,6 +5,7 @@ import data_generator
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 from tensorflow.keras.optimizers import SGD
+import validation_callback
 
 
 CHECKPOINT_PATH = 'C:\\Users\\Admin\\Desktop\\face-recognition\\exported-networks\\localization_network_checkpoint_ni_data_augemented.cktp'
@@ -57,19 +58,23 @@ for weight in model.trainable_weights:
 optimizer = SGD(lr=LEARNING_RATE, decay=LR_DECAY, momentum=0.9, nesterov=False)
 model.compile(loss=loss_functions.detection_loss(), optimizer=optimizer, metrics=[])
 
-train_datagen = data_generator.DataGenerator(rnd_color=True, rnd_crop=True, rnd_flip=True, rnd_multiply=True, rnd_rescale=True)
+#train_datagen = data_generator.DataGenerator(rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
+train_datagen = data_generator.DataGenerator(rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
+
 
 #model.load_weights(CHECKPOINT_PATH)
 
 val_generator = data_generator.DataGenerator(rnd_rescale=False, rnd_multiply=False, rnd_crop=False, rnd_flip=False, debug=False, is_validation=True)
+validation_callback = validation_callback.Validation(generator=val_generator)
 
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH, save_weights_only=True, verbose=1)
+stop = tf.keras.callbacks.EarlyStopping(monitor="val_iou", patience=PATIENCE, mode="max")
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_iou", factor=0.6, patience=5, min_lr=1e-6, verbose=1, mode="max")
 
 model.fit_generator(
     generator=train_datagen,
     epochs=EPOCHS,
     shuffle=True,
     verbose=1,
-    callbacks=[cp_callback],
-    validation_data = val_generator
+    callbacks=[cp_callback, validation_callback, stop, reduce_lr],
 )

@@ -187,6 +187,8 @@ class DataGenerator(tf.keras.utils.Sequence):
                         x[2] = img.width / 2 + __x * np.cos(np.deg2rad(elem)) - __y * np.sin(np.deg2rad(elem))
                         x[3] = img.height / 2 + __x * np.sin(np.deg2rad(elem)) + __y * np.cos(np.deg2rad(elem))
 
+                        zzzzz = 5
+
                     img = img.rotate(-elem)
 
                 _wimg = img.width
@@ -247,8 +249,22 @@ class DataGenerator(tf.keras.utils.Sequence):
                     x2 = x[2]
                     y2 = x[3]
 
+                    if(x1 > x2):
+                        temp = x1
+                        x1 = x2
+                        x2 = temp
+
+                    if(y1 > y2):
+                        temp = y1
+                        y1 = y2
+                        y2 = temp
+
+                    
+                        
+
                     xc = GRIDS / _wimg * (x1 + (x2 - x1) / 2)
                     yc = GRIDS / _himg * (y1 + (y2 - y1) / 2)
+
 
                     fxc = int(xc)
                     if(fxc == GRIDS):
@@ -257,11 +273,16 @@ class DataGenerator(tf.keras.utils.Sequence):
                     if(fyc == GRIDS):
                         fyc = fyc - 1
 
-                    Y[(entry, fyc, fxc, 0)] = (y2 - y1) / _himg
-                    Y[(entry, fyc, fxc, 1)] = (x2 - x1) / _wimg
-                    Y[(entry, fyc, fxc, 2)] = yc - fyc
-                    Y[(entry, fyc, fxc, 3)] = xc - fxc
-                    Y[(entry, fyc, fxc, 4)] = 1
+                    if(fxc >= 0 and fyc >= 0):
+                    
+                        Y[(entry, fyc, fxc, 0)] = (y2 - y1) / _himg
+                        Y[(entry, fyc, fxc, 1)] = (x2 - x1) / _wimg
+                        Y[(entry, fyc, fxc, 2)] = yc - fyc
+                        Y[(entry, fyc, fxc, 3)] = xc - fxc
+                        Y[(entry, fyc, fxc, 4)] = 1
+                    else:
+                        print("FXC or FYC are lower than zero! " + i.path())
+                        print(x)
 
                 entry = entry + 1
 
@@ -269,7 +290,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
 
 def display_batch(index=0, batch_size=32):
-    d = DataGenerator(batch_size=batch_size, rnd_color=True, rnd_crop=True, rnd_flip=True, rnd_multiply=True, rnd_rescale=True)
+    d = DataGenerator(batch_size=batch_size, rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
     a = d.__getitem__(index)
     for i in range(batch_size):
         im = a[0][i]
@@ -293,19 +314,11 @@ def display_batch(index=0, batch_size=32):
                     y1 = yc - bh / 2
                     y2 = yc + bh / 2
 
-                    if(x1 > x2):
-                        temp = x1
-                        x1 = x2
-                        x2 = temp
-
-                    if(y1 > y2):
-                        temp = y1
-                        y1 = y2
-                        y2 = temp
+                    
 
                     image_helper.draw_rectangle(img, (x1, y1, x2, y2), outline='green', width=1)
 
         img = img.resize((1000, 1000))
         img.show()
 
-#display_batch(batch_size=32)
+#display_batch(batch_size=16)

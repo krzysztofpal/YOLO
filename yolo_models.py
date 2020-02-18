@@ -55,3 +55,39 @@ def model_from_scratch():
         tf.keras.layers.Conv2D(5, (1,1), activation='sigmoid', padding='same')
     ])
     return model
+
+def model_from_scratch_with_dropout():
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Conv2D(8, (3,3), activation='relu', input_shape=(288,288,3), padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(8, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(2,2),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Conv2D(16, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(16, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(2,2),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Conv2D(32, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(32, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(2,2),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Conv2D(64, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(64, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(2,2),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Conv2D(128, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(128, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.MaxPooling2D(2,2),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Conv2D(192, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Conv2D(192, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Conv2D(192, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Conv2D(192, (3,3), activation='relu', padding='same'),
+        tf.keras.layers.Conv2D(5, (1,1), activation='sigmoid', padding='same')
+    ])
+    return model

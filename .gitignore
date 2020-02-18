@@ -11818,3 +11818,4 @@ __pycache__/yolo_data_loader.cpython-36.pyc
 .venv/Scripts/vcruntime140.dll
 .venv/Scripts/wheel.exe
 .venv/Scripts/winsound.pyd
+*.h5

@@ -19,7 +19,7 @@ IMAGE_SIZE = yolo_params.image_size()
 
 # first train with frozen weights, then fine tune
 TRAINABLE = False
-WEIGHTS = "model-0.64.h5"
+WEIGHTS = "model-0.44.h5"
 
 EPOCHS = 200
 BATCH_SIZE = 32
@@ -34,22 +34,23 @@ THREADS = 1
 
 
 
-model = yolo_models.model_from_scratch()
+model = yolo_models.model_from_scratch_with_dropout()
 
 
 optimizer = SGD(lr=LEARNING_RATE, decay=LR_DECAY, momentum=0.9, nesterov=False)
 model.compile(loss=loss_functions.detection_loss(), optimizer=optimizer, metrics=[])
 
-train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
-#train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
+#train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
+train_datagen = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_color=False, rnd_crop=False, rnd_flip=False, rnd_multiply=False, rnd_rescale=False)
 
 
-#model.load_weights(CHECKPOINT_PATH)
+model.load_weights(WEIGHTS)
 
 val_generator = data_generator.DataGenerator(batch_size=BATCH_SIZE, dim=(IMAGE_SIZE, IMAGE_SIZE, 3), rnd_rescale=False, rnd_multiply=False, rnd_crop=False, rnd_flip=False, debug=False, is_validation=True)
 validation_callback = validation_callback.Validation(generator=val_generator)
 
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH, save_weights_only=True, verbose=1)
+checkpoint = tf.keras.callbacks.ModelCheckpoint("model-{val_iou:.2f}.h5", monitor="val_iou", verbose=1, save_best_only=True,
+                                 save_weights_only=True, mode="max")
 stop = tf.keras.callbacks.EarlyStopping(monitor="val_iou", patience=PATIENCE, mode="max")
 reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_iou", factor=0.6, patience=5, min_lr=1e-6, verbose=1, mode="max")
 
@@ -58,5 +59,5 @@ model.fit_generator(
     epochs=EPOCHS,
     shuffle=True,
     verbose=1,
-    callbacks=[cp_callback, validation_callback, stop, reduce_lr],
+    callbacks=[validation_callback, checkpoint, stop, reduce_lr],
 )

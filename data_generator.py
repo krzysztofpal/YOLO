@@ -291,6 +291,9 @@ class DataGenerator(tf.keras.utils.Sequence):
         return X, Y
 
 
+def dispay_model(image_not_normalized, model):
+    pass
+
 def display_batch(index=0, batch_size=32):
     d = DataGenerator(batch_size=batch_size, rnd_color=True, rnd_crop=True, rnd_flip=False, rnd_multiply=True, rnd_rescale=True)
     a = d.__getitem__(index)
